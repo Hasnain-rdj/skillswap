@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { getAuth } from '../auth';
 import NavigationBar from '../NavigationBar';
 import { Bar } from 'react-chartjs-2';
@@ -29,7 +29,7 @@ const AnalyticsDashboard = () => {
     const [end, setEnd] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const fetchAnalytics = async () => {
+    const fetchAnalytics = useCallback(async () => {
         setLoading(true);
         let url = process.env.REACT_APP_API_URL + '/api/analytics/client';
         const params = [];
@@ -40,7 +40,7 @@ const AnalyticsDashboard = () => {
         const d = await res.json();
         setData(d);
         setLoading(false);
-    };
+    }, [token, start, end]);
 
     useEffect(() => {
         fetchAnalytics();

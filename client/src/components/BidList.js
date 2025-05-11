@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { getAuth } from './auth';
 import { io } from 'socket.io-client';
 
@@ -14,6 +14,16 @@ const BidList = ({ projectId }) => {
     const [offerStatus, setOfferStatus] = useState('');
     const { token, user } = getAuth();
 
+    const fetchBids = useCallback(async () => {
+        setLoading(true);
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/bids`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setBids(data);
+        setLoading(false);
+    }, [projectId, token]);
+
     useEffect(() => {
         fetchBids();
         socket.emit('joinProjectRoom', projectId);
@@ -25,16 +35,6 @@ const BidList = ({ projectId }) => {
             socket.off('bidUpdate');
         };
     }, [projectId, fetchBids]);
-
-    const fetchBids = async () => {
-        setLoading(true);
-        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/bids`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setBids(data);
-        setLoading(false);
-    };
 
     const sendOffer = async (freelancerId) => {
         if (!offer.price || !offer.deadline) return;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getAuth } from './auth';
 import { io } from 'socket.io-client';
 import {
@@ -23,6 +23,30 @@ const Chat = ({ receiverId, receiverName }) => {
     const [currentOffer, setCurrentOffer] = useState(null);
     const [editOfferForm, setEditOfferForm] = useState(false);
     const [editOffer, setEditOffer] = useState({ price: '', deadline: '' });
+
+    const fetchMessages = useCallback(async () => {
+        setLoading(true);
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/messages/${receiverId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setMessages(data);
+        setLoading(false);
+
+        await fetch(process.env.REACT_APP_API_URL + `/api/messages/read/${receiverId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    }, [receiverId, token]);
+
+    const fetchCurrentOffer = useCallback(async () => {
+        const res = await fetch(process.env.REACT_APP_API_URL + '/api/projects', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const offerProject = data.find(p => p.contract && p.contract.freelancerId === receiverId && p.clientId && (p.clientId._id === user.id || p.clientId === user.id));
+        setCurrentOffer(offerProject ? { ...offerProject.contract, projectTitle: offerProject.title, projectId: offerProject._id } : null);
+    }, [receiverId, token, user.id]);
 
     useEffect(() => {
         socket.on('newMessage', (msg) => {
@@ -63,30 +87,6 @@ const Chat = ({ receiverId, receiverName }) => {
                 });
         }
     }, [user, token, receiverId]);
-
-    const fetchMessages = async () => {
-        setLoading(true);
-        const res = await fetch(process.env.REACT_APP_API_URL + `/api/messages/${receiverId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setMessages(data);
-        setLoading(false);
-
-        await fetch(process.env.REACT_APP_API_URL + `/api/messages/read/${receiverId}`, {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-    };
-
-    const fetchCurrentOffer = async () => {
-        const res = await fetch(process.env.REACT_APP_API_URL + '/api/projects', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        const offerProject = data.find(p => p.contract && p.contract.freelancerId === receiverId && p.clientId && (p.clientId._id === user.id || p.clientId === user.id));
-        setCurrentOffer(offerProject ? { ...offerProject.contract, projectTitle: offerProject.title, projectId: offerProject._id } : null);
-    };
 
     useEffect(() => {
         if (user && user.id) {

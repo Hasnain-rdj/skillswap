@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import NavigationBar from '../NavigationBar';
 import {
     BellIcon,
@@ -26,19 +26,21 @@ const AdminNotifications = () => {
     const [error, setError] = useState('');
     const token = localStorage.getItem('token');
 
-
-    const fetchTemplates = async () => {
+    const fetchTemplates = useCallback(async () => {
         const res = await fetch(`${API}/templates`, { headers: { Authorization: `Bearer ${token}` } });
         setTemplates(await res.json());
-    };
-    const fetchScheduled = async () => {
+    }, [token]);
+
+    const fetchScheduled = useCallback(async () => {
         const res = await fetch(`${API}/scheduled`, { headers: { Authorization: `Bearer ${token}` } });
         setScheduled(await res.json());
-    };
-    const fetchUsers = async () => {
+    }, [token]);
+
+    const fetchUsers = useCallback(async () => {
         const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/freelancers', { headers: { Authorization: `Bearer ${token}` } });
         setUsers(await res.json());
-    };
+    }, [token]);
+
     const fetchPreferences = async (userId) => {
         const res = await fetch(`${API}/preferences/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
         setPreferences(await res.json());
@@ -49,7 +51,6 @@ const AdminNotifications = () => {
         fetchScheduled();
         fetchUsers();
     }, [token, fetchTemplates, fetchScheduled, fetchUsers]);
-
 
     const handleForm = e => setForm({ ...form, [e.target.name]: e.target.value });
     const saveTemplate = async e => {
@@ -76,7 +77,6 @@ const AdminNotifications = () => {
         fetchTemplates();
     };
 
-
     const sendNotif = async e => {
         e.preventDefault();
         setMsg(''); setError('');
@@ -89,7 +89,6 @@ const AdminNotifications = () => {
         if (res.ok) setMsg(data.message);
         else setError(data.message || 'Error sending notification.');
     };
-
 
     const scheduleNotif = async e => {
         e.preventDefault();
@@ -104,7 +103,6 @@ const AdminNotifications = () => {
             fetchScheduled();
         } else setError('Error scheduling notification.');
     };
-
 
     const handlePref = e => setPreferences({ ...preferences, [e.target.name]: e.target.checked });
     const savePref = async e => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     PencilIcon,
     TrashIcon,
@@ -33,11 +33,7 @@ const ProjectManager = () => {
 
     const { token, user } = getAuth();
 
-    useEffect(() => {
-        fetchProjects();
-    }, [fetchProjects]);
-
-    const fetchProjects = async () => {
+    const fetchProjects = useCallback(async () => {
         setLoading(true);
         if (!user || !user.id) {
             setProjects([]);
@@ -50,7 +46,11 @@ const ProjectManager = () => {
         const data = await res.json();
         setProjects(data.filter(p => p.clientId && p.clientId._id === user.id));
         setLoading(false);
-    };
+    }, [user, token]);
+
+    useEffect(() => {
+        fetchProjects();
+    }, [fetchProjects]);
 
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
