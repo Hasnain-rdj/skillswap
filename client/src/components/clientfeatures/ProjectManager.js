@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     PencilIcon,
     TrashIcon,
@@ -11,8 +11,6 @@ import {
 import NavigationBar from '../NavigationBar';
 import BidList from '../BidList';
 import { getAuth } from '../auth';
-
-const API = process.env.REACT_APP_API_URL + '/api/projects';
 
 const statusColors = {
     open: 'bg-green-100 text-green-700',
@@ -33,24 +31,24 @@ const ProjectManager = () => {
 
     const { token, user } = getAuth();
 
-    const fetchProjects = useCallback(async () => {
+    useEffect(() => {
         setLoading(true);
         if (!user || !user.id) {
             setProjects([]);
             setLoading(false);
             return;
         }
-        const res = await fetch(API, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setProjects(data.filter(p => p.clientId && p.clientId._id === user.id));
-        setLoading(false);
-    }, [user, token]);
-
-    useEffect(() => {
+        const API = process.env.REACT_APP_API_URL + '/api/projects';
+        const fetchProjects = async () => {
+            const res = await fetch(API, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            setProjects(data.filter(p => p.clientId && p.clientId._id === user.id));
+            setLoading(false);
+        };
         fetchProjects();
-    }, [fetchProjects]);
+    }, [user, token]);
 
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -64,6 +62,7 @@ const ProjectManager = () => {
         }
         setLoading(true);
         const method = editing ? 'PUT' : 'POST';
+        const API = process.env.REACT_APP_API_URL + '/api/projects';
         const url = editing ? `${API}/${editing}` : API;
         const res = await fetch(url, {
             method,
@@ -79,7 +78,12 @@ const ProjectManager = () => {
             setSuccess(editing ? 'Project updated.' : 'Project created.');
             setForm({ title: '', description: '', requirements: '', deadline: '' });
             setEditing(null);
-            fetchProjects();
+            // Refetch projects
+            const res2 = await fetch(API, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data2 = await res2.json();
+            setProjects(data2.filter(p => p.clientId && p.clientId._id === user.id));
         }
         setLoading(false);
     };
@@ -97,11 +101,19 @@ const ProjectManager = () => {
     const handleDelete = async id => {
         if (!window.confirm('Delete this project?')) return;
         setLoading(true);
+        const API = process.env.REACT_APP_API_URL + '/api/projects';
         const res = await fetch(`${API}/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (res.ok) fetchProjects();
+        if (res.ok) {
+            // Refetch projects
+            const res2 = await fetch(API, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data2 = await res2.json();
+            setProjects(data2.filter(p => p.clientId && p.clientId._id === user.id));
+        }
         setLoading(false);
     };
 

@@ -17,7 +17,7 @@ const FreelancerDashboard = () => {
         const freelancerId = user.id || user._id;
         setLoading(true);
         setError(null);
-        axios.get(`/api/auth/freelancers/${freelancerId}`)
+        axios.get(process.env.REACT_APP_API_URL + `/api/auth/freelancers/${freelancerId}`)
             .then(res => {
                 setProfile(res.data);
                 setCompleteness(res.data.profileCompleteness || 0);
@@ -29,7 +29,7 @@ const FreelancerDashboard = () => {
                 setError('Profile not found. Please contact support if this persists.');
                 setLoading(false);
             });
-        axios.get(`/api/analytics/freelancer/${freelancerId}`)
+        axios.get(process.env.REACT_APP_API_URL + `/api/analytics/freelancer/${freelancerId}`)
             .then(res => setAvgRating(res.data.avgRating))
             .catch(() => setAvgRating(null));
     }, [user]);

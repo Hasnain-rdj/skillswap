@@ -15,7 +15,7 @@ const FreelancerProfileView = ({ freelancerId, onBack, onChat }) => {
         if (!freelancerId) return;
         const fetchProfile = async () => {
             try {
-                const res = await axios.get(`/api/auth/freelancers/${freelancerId}`);
+                const res = await axios.get(process.env.REACT_APP_API_URL + `/api/auth/freelancers/${freelancerId}`);
                 setProfile(res.data);
                 setLoading(false);
             } catch (err) {
@@ -24,7 +24,7 @@ const FreelancerProfileView = ({ freelancerId, onBack, onChat }) => {
             }
         };
         fetchProfile();
-        axios.get(`/api/analytics/freelancer/${freelancerId}`).then(res => setAvgRating(res.data.avgRating));
+        axios.get(process.env.REACT_APP_API_URL + `/api/analytics/freelancer/${freelancerId}`).then(res => setAvgRating(res.data.avgRating));
     }, [freelancerId]);
 
     if (loading) return <div className="text-center mt-12">Loading...</div>;

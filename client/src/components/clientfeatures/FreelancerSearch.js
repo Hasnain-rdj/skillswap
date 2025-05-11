@@ -68,7 +68,6 @@ const FreelancerSearch = () => {
         setLoading(false);
     };
 
-
     React.useEffect(() => {
         fetchFreelancers('');
     }, []);
