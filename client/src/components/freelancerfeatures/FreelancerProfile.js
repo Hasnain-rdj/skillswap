@@ -27,7 +27,7 @@ const FreelancerProfile = () => {
         setError(null);
         try {
             const { token } = getAuth();
-            const res = await axios.post(`/api/auth/freelancers/${user.id || user._id}/upload-image`, formData, {
+            const res = await axios.post(process.env.REACT_APP_API_URL + `/api/auth/freelancers/${user.id || user._id}/upload-image`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`
@@ -46,7 +46,7 @@ const FreelancerProfile = () => {
         const freelancerId = user.id || user._id;
         const fetchProfile = async () => {
             try {
-                const res = await axios.get(`/api/auth/freelancers/${freelancerId}`);
+                const res = await axios.get(process.env.REACT_APP_API_URL + `/api/auth/freelancers/${freelancerId}`);
                 setProfile(res.data);
                 setNewName(prev => editingName ? prev : res.data.name);
                 setLoading(false);
@@ -56,14 +56,14 @@ const FreelancerProfile = () => {
             }
         };
         fetchProfile();
-        axios.get(`/api/analytics/freelancer/${freelancerId}`).then(res => setAvgRating(res.data.avgRating));
+        axios.get(process.env.REACT_APP_API_URL + `/api/analytics/freelancer/${freelancerId}`).then(res => setAvgRating(res.data.avgRating));
     }, [user, editingName]);
 
     const handleProfileUpdate = async (updates) => {
         try {
             const { token } = getAuth();
             const res = await axios.put(
-                `/api/auth/freelancers/${user.id || user._id}`,
+                process.env.REACT_APP_API_URL + `/api/auth/freelancers/${user.id || user._id}`,
                 updates,
                 {
                     headers: {
@@ -84,7 +84,7 @@ const FreelancerProfile = () => {
         try {
             const { token } = getAuth();
             const res = await axios.put(
-                `/api/auth/freelancers/${user.id || user._id}`,
+                process.env.REACT_APP_API_URL + `/api/auth/freelancers/${user.id || user._id}`,
                 { name: newName },
                 {
                     headers: {

@@ -12,12 +12,12 @@ const ProjectTimeline = ({ project, onClose, freelancerId }) => {
     const [msg, setMsg] = useState('');
 
     const updateProgress = async () => {
-        await axios.patch(`/api/projects/${project._id}/progress`, { progress });
+        await axios.patch(process.env.REACT_APP_API_URL + `/api/projects/${project._id}/progress`, { progress });
         setMsg('Progress updated!');
     };
 
     const addMilestone = async () => {
-        const res = await axios.post(`/api/projects/${project._id}/milestones`, { title: milestoneTitle, dueDate: milestoneDue });
+        const res = await axios.post(process.env.REACT_APP_API_URL + `/api/projects/${project._id}/milestones`, { title: milestoneTitle, dueDate: milestoneDue });
         setMilestones(res.data.milestones);
         setMilestoneTitle('');
         setMilestoneDue('');
@@ -25,7 +25,7 @@ const ProjectTimeline = ({ project, onClose, freelancerId }) => {
     };
 
     const updateMilestoneStatus = async (idx, status) => {
-        const res = await axios.patch(`/api/projects/${project._id}/milestones/${idx}`, { status });
+        const res = await axios.patch(process.env.REACT_APP_API_URL + `/api/projects/${project._id}/milestones/${idx}`, { status });
         const updated = [...milestones];
         updated[idx] = res.data.milestone;
         setMilestones(updated);
@@ -33,7 +33,7 @@ const ProjectTimeline = ({ project, onClose, freelancerId }) => {
     };
 
     const addTimeLog = async () => {
-        const res = await axios.post(`/api/projects/${project._id}/timelogs`, timelog);
+        const res = await axios.post(process.env.REACT_APP_API_URL + `/api/projects/${project._id}/timelogs`, timelog);
         setTimeLogs(res.data.timeLogs);
         setTimelog({ start: '', end: '', duration: '' });
         setMsg('Time log added!');

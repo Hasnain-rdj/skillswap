@@ -16,7 +16,7 @@ const BidManager = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios.get('/api/projects').then(res => {
+    axios.get(process.env.REACT_APP_API_URL + '/api/projects').then(res => {
       setProjects(res.data.filter(p => p.status === 'open'));
       setLoading(false);
     });
@@ -27,11 +27,11 @@ const BidManager = () => {
     setLoading(true);
     const { token } = getAuth();
     try {
-      const res = await axios.get(`/api/projects/${projectId}/bids`, {
+      const res = await axios.get(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/bids`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBids(res.data.filter(b => b.freelancerId?._id === user.id));
-      const analyticsRes = await axios.get(`/api/projects/${projectId}/bids/analytics`, {
+      const analyticsRes = await axios.get(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/bids/analytics`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAnalytics(analyticsRes.data);
@@ -49,7 +49,7 @@ const BidManager = () => {
   const submitBid = async () => {
     const { token } = getAuth();
     await axios.post(
-      `/api/projects/${selectedProject}/bids`,
+      process.env.REACT_APP_API_URL + `/api/projects/${selectedProject}/bids`,
       {
         freelancerId: user.id,
         amount: bid.amount,
@@ -66,7 +66,7 @@ const BidManager = () => {
   const editBid = async (bidId) => {
     const { token } = getAuth();
     await axios.put(
-      `/api/projects/${selectedProject}/bids/${bidId}`,
+      process.env.REACT_APP_API_URL + `/api/projects/${selectedProject}/bids/${bidId}`,
       {
         amount: bid.amount,
         message: bid.message

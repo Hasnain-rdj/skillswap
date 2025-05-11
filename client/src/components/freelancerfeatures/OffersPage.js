@@ -12,7 +12,7 @@ const OffersPage = () => {
     const fetchOffers = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await axios.get('/api/projects', {
+            const res = await axios.get(process.env.REACT_APP_API_URL + '/api/projects', {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -31,7 +31,7 @@ const OffersPage = () => {
 
     const handleAccept = async (projectId) => {
         try {
-            await axios.post(`/api/projects/${projectId}/offer/respond`, { action: 'accept' }, {
+            await axios.post(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/offer/respond`, { action: 'accept' }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setStatusMsg('Offer accepted!');
@@ -43,7 +43,7 @@ const OffersPage = () => {
 
     const handleReject = async (projectId) => {
         try {
-            await axios.post(`/api/projects/${projectId}/offer/respond`, { action: 'reject' }, {
+            await axios.post(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/offer/respond`, { action: 'reject' }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setStatusMsg('Offer rejected.');

@@ -13,7 +13,7 @@ const ProjectManager = () => {
 
     useEffect(() => {
         setLoading(true);
-        axios.get('/api/projects')
+        axios.get(process.env.REACT_APP_API_URL + '/api/projects')
             .then(res => {
                 const myProjects = res.data.filter(p => p.assignedFreelancer === user.id || (p.assignedFreelancer && p.assignedFreelancer._id === user.id));
                 setProjects(myProjects);
