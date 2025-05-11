@@ -33,10 +33,9 @@ const ProjectManager = () => {
 
     const { token, user } = getAuth();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchProjects();
-    }, []);
+    }, [fetchProjects]);
 
     const fetchProjects = async () => {
         setLoading(true);

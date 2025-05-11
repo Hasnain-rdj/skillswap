@@ -29,11 +29,6 @@ const AnalyticsDashboard = () => {
     const [end, setEnd] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    useEffect(() => {
-        fetchAnalytics();
-    }, []);
-
     const fetchAnalytics = async () => {
         setLoading(true);
         let url = process.env.REACT_APP_API_URL + '/api/analytics/client';
@@ -46,6 +41,10 @@ const AnalyticsDashboard = () => {
         setData(d);
         setLoading(false);
     };
+
+    useEffect(() => {
+        fetchAnalytics();
+    }, [fetchAnalytics]);
 
     const exportCSV = () => {
         window.open(process.env.REACT_APP_API_URL + '/api/analytics/client/export/csv', '_blank');

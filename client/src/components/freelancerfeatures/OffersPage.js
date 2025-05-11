@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { getAuth } from '../auth';
 import NavigationBar from '../NavigationBar';
@@ -9,7 +9,7 @@ const OffersPage = () => {
     const [loading, setLoading] = useState(false);
     const [statusMsg, setStatusMsg] = useState('');
 
-    const fetchOffers = async () => {
+    const fetchOffers = useCallback(async () => {
         setLoading(true);
         try {
             const res = await axios.get('/api/projects', {
@@ -23,12 +23,11 @@ const OffersPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [token, user.id]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchOffers();
-    }, []);
+    }, [fetchOffers]);
 
     const handleAccept = async (projectId) => {
         try {

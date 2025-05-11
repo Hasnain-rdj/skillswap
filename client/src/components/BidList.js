@@ -14,7 +14,6 @@ const BidList = ({ projectId }) => {
     const [offerStatus, setOfferStatus] = useState('');
     const { token, user } = getAuth();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchBids();
         socket.emit('joinProjectRoom', projectId);
@@ -25,7 +24,7 @@ const BidList = ({ projectId }) => {
             socket.emit('leaveProjectRoom', projectId);
             socket.off('bidUpdate');
         };
-    }, [projectId]);
+    }, [projectId, fetchBids]);
 
     const fetchBids = async () => {
         setLoading(true);

@@ -34,7 +34,7 @@ const Chat = ({ receiverId, receiverName }) => {
             socket.off('newMessage');
         };
 
-    }, [receiverId]);
+    }, [receiverId, user.id]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -50,7 +50,6 @@ const Chat = ({ receiverId, receiverName }) => {
         }
     }, [user, token]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (user.role === 'freelancer') {
             fetch(process.env.REACT_APP_API_URL + '/api/projects', {
@@ -89,19 +88,17 @@ const Chat = ({ receiverId, receiverName }) => {
         setCurrentOffer(offerProject ? { ...offerProject.contract, projectTitle: offerProject.title, projectId: offerProject._id } : null);
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (user && user.id) {
             fetchCurrentOffer();
             fetchMessages();
         }
-    }, [user]);
+    }, [user, fetchCurrentOffer, fetchMessages]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchCurrentOffer();
         fetchMessages();
-    }, []);
+    }, [fetchCurrentOffer, fetchMessages]);
 
     const sendMessage = async (e) => {
         e.preventDefault();

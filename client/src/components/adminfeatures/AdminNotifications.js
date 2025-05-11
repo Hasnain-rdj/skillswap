@@ -44,12 +44,11 @@ const AdminNotifications = () => {
         setPreferences(await res.json());
     };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchTemplates();
         fetchScheduled();
         fetchUsers();
-    }, [token]);
+    }, [token, fetchTemplates, fetchScheduled, fetchUsers]);
 
 
     const handleForm = e => setForm({ ...form, [e.target.name]: e.target.value });
