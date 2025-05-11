@@ -17,7 +17,7 @@ const AdminVerification = () => {
         setError(null);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/admin/freelancers/pending', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/admin/freelancers/pending', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) {
@@ -46,7 +46,7 @@ const AdminVerification = () => {
             else if (status === 'approved') action = 'approve';
             else if (status === 'rejected') action = 'reject';
             else action = status;
-            const res = await fetch(`http://localhost:5000/api/admin/freelancers/${id}/verify`, {
+            const res = await fetch(process.env.REACT_APP_API_URL + `/api/admin/freelancers/${id}/verify`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -79,7 +79,7 @@ const AdminVerification = () => {
                     {pending.map(f => (
                         <div key={f._id} className="bg-white rounded-2xl shadow-xl p-6 border-t-8 border-blue-600 flex flex-col gap-2">
                             <div className="flex items-center gap-4 mb-2">
-                                <img src={f.image ? (f.image.startsWith('http') ? f.image : `http://localhost:5000${f.image}`) : '/logo192.png'} alt={f.name} className="h-16 w-16 rounded-full object-cover border-2 border-blue-200" />
+                                <img src={f.image ? (f.image.startsWith('http') ? f.image : process.env.REACT_APP_API_URL + f.image) : '/logo192.png'} alt={f.name} className="h-16 w-16 rounded-full object-cover border-2 border-blue-200" />
                                 <div>
                                     <div className="font-bold text-xl text-blue-800">{f.name}</div>
                                     <div className="text-gray-500 text-sm">{f.email}</div>
@@ -96,7 +96,7 @@ const AdminVerification = () => {
                                 <ul className="list-disc ml-6">
                                     {f.verificationDocs && f.verificationDocs.length > 0 ? f.verificationDocs.map((doc, idx) => (
                                         <li key={idx}>
-                                            <a href={`http://localhost:5000${doc}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View Document {idx + 1}</a>
+                                            <a href={process.env.REACT_APP_API_URL + doc} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View Document {idx + 1}</a>
                                         </li>
                                     )) : <li className="text-gray-400">No documents uploaded.</li>}
                                 </ul>

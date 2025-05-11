@@ -11,7 +11,7 @@ const AdminDashboard = () => {
             <div className="max-w-6xl mx-auto py-12 px-4">
                 <div className="flex flex-col items-center mb-8">
                     {user?.image && (
-                        <img src={user.image.startsWith('http') ? user.image : `http://localhost:5000${user.image}`} alt={user.name} className="h-20 w-20 rounded-full object-cover border-4 border-blue-300 mb-2" />
+                        <img src={user.image.startsWith('http') ? user.image : process.env.REACT_APP_API_URL + user.image} alt={user.name} className="h-20 w-20 rounded-full object-cover border-4 border-blue-300 mb-2" />
                     )}
                     <h1 className="text-4xl font-extrabold text-blue-800 mb-2 tracking-tight text-center drop-shadow">Admin Dashboard</h1>
                     <div className="text-lg text-blue-700 font-semibold">Welcome, {user?.name}</div>

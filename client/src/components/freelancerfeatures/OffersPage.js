@@ -25,9 +25,9 @@ const OffersPage = () => {
         }
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchOffers();
-
     }, []);
 
     const handleAccept = async (projectId) => {

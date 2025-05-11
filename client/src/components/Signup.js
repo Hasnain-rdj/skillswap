@@ -29,7 +29,6 @@ const Signup = () => {
     const [otpSuccess, setOtpSuccess] = useState('');
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [googleCredential, setGoogleCredential] = useState(null);
-    const [googleLoginEmail, setGoogleLoginEmail] = useState('');
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -45,7 +44,7 @@ const Signup = () => {
         setOtpError(''); setOtpSuccess('');
         if (!form.email) return setOtpError('Please enter your email first.');
         try {
-            const res = await fetch('http://localhost:5000/api/auth/send-otp', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: form.email })
@@ -65,7 +64,7 @@ const Signup = () => {
         setOtpError(''); setOtpSuccess('');
         if (!otp) return setOtpError('Enter the OTP sent to your email.');
         try {
-            const res = await fetch('http://localhost:5000/api/auth/verify-otp', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: form.email, otp })
@@ -97,7 +96,7 @@ const Signup = () => {
         setSuccess('');
         setShowRoleModal(false);
         try {
-            const res = await fetch('http://localhost:5000/api/auth/google', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ credential: googleCredential, mode: 'signup', role })
@@ -139,7 +138,7 @@ const Signup = () => {
             formData.append('password', form.password);
             formData.append('role', form.role);
             if (image) formData.append('image', image);
-            const res = await fetch('http://localhost:5000/api/auth/register', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/register', {
                 method: 'POST',
                 body: formData
             });

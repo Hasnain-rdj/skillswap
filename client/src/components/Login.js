@@ -33,7 +33,7 @@ const Login = () => {
         setError('');
         setSuccess('');
         try {
-            const res = await fetch('http://localhost:5000/api/auth/login', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -76,7 +76,7 @@ const Login = () => {
         setError('');
         setSuccess('');
         try {
-            const res = await fetch('http://localhost:5000/api/auth/google', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/google', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ credential: credentialResponse.credential, mode: 'login' })
@@ -121,13 +121,13 @@ const Login = () => {
         try {
             let res, data;
             if (pendingLogin.isGoogle) {
-                res = await fetch('http://localhost:5000/api/auth/google', {
+                res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/google', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ credential: pendingLogin.credential, mode: 'login-role', role })
                 });
             } else {
-                res = await fetch('http://localhost:5000/api/auth/login', {
+                res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: pendingLogin.email, password: pendingLogin.password, role })

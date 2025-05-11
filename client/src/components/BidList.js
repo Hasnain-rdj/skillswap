@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getAuth } from './auth';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io(process.env.REACT_APP_API_URL);
 
 const BidList = ({ projectId }) => {
     const [bids, setBids] = useState([]);
@@ -14,6 +14,7 @@ const BidList = ({ projectId }) => {
     const [offerStatus, setOfferStatus] = useState('');
     const { token, user } = getAuth();
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchBids();
         socket.emit('joinProjectRoom', projectId);
@@ -28,7 +29,7 @@ const BidList = ({ projectId }) => {
 
     const fetchBids = async () => {
         setLoading(true);
-        const res = await fetch(`http://localhost:5000/api/projects/${projectId}/bids`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/bids`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -38,7 +39,7 @@ const BidList = ({ projectId }) => {
 
     const sendOffer = async (freelancerId) => {
         if (!offer.price || !offer.deadline) return;
-        const res = await fetch(`http://localhost:5000/api/projects/${projectId}/offer`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${projectId}/offer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

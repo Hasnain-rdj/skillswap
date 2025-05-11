@@ -38,7 +38,7 @@ const FreelancerSearch = () => {
 
     const fetchFreelancers = async (query = '') => {
         setLoading(true);
-        let url = `http://localhost:5000/api/auth/freelancers`;
+        let url = process.env.REACT_APP_API_URL + '/api/auth/freelancers';
         if (query) url += `?name=${encodeURIComponent(query)}`;
         const { token } = getAuth();
         try {
@@ -56,7 +56,7 @@ const FreelancerSearch = () => {
             setFreelancers(data);
             const ratingsObj = {};
             await Promise.all(data.map(async (f) => {
-                const res = await fetch(`http://localhost:5000/api/reviews/freelancer/${f._id}/average`);
+                const res = await fetch(process.env.REACT_APP_API_URL + `/api/reviews/freelancer/${f._id}/average`);
                 const d = await res.json();
                 ratingsObj[f._id] = d.average || 0;
             }));
@@ -118,7 +118,7 @@ const FreelancerSearch = () => {
                                     <div className="flex flex-col items-center mb-3 w-full">
                                         <div className="h-20 w-20 rounded-full bg-blue-200 flex items-center justify-center mb-2 overflow-hidden border-4 border-blue-300 shadow">
                                             {freelancer.image ? (
-                                                <img src={freelancer.image.startsWith('http') ? freelancer.image : `http://localhost:5000${freelancer.image}`} alt={freelancer.name} className="h-full w-full object-cover" />
+                                                <img src={freelancer.image.startsWith('http') ? freelancer.image : process.env.REACT_APP_API_URL + freelancer.image} alt={freelancer.name} className="h-full w-full object-cover" />
                                             ) : (
                                                 <UserCircleIcon className="h-12 w-12 text-blue-500" />
                                             )}

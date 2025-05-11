@@ -122,7 +122,7 @@ const FreelancerProfile = () => {
                             <div className="relative flex flex-col items-center md:items-start w-full md:w-1/3">
                                 {profile.image && (
                                     <img
-                                        src={profile.image.startsWith('http') ? profile.image : `http://localhost:5000${profile.image}`}
+                                        src={profile.image.startsWith('http') ? profile.image : process.env.REACT_APP_API_URL + profile.image}
                                         alt="Profile"
                                         className="h-32 w-32 rounded-full object-cover border-4 border-blue-300 shadow mb-3"
                                     />

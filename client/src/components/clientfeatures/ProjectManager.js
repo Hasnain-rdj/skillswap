@@ -12,7 +12,7 @@ import NavigationBar from '../NavigationBar';
 import BidList from '../BidList';
 import { getAuth } from '../auth';
 
-const API = 'http://localhost:5000/api/projects';
+const API = process.env.REACT_APP_API_URL + '/api/projects';
 
 const statusColors = {
     open: 'bg-green-100 text-green-700',
@@ -33,6 +33,7 @@ const ProjectManager = () => {
 
     const { token, user } = getAuth();
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchProjects();
     }, []);

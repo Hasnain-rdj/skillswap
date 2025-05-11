@@ -8,7 +8,7 @@ import {
     ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
-const socket = io('http://localhost:5000');
+const socket = io(process.env.REACT_APP_API_URL);
 
 const Chat = ({ receiverId, receiverName }) => {
     const { token, user } = getAuth();
@@ -42,7 +42,7 @@ const Chat = ({ receiverId, receiverName }) => {
 
     useEffect(() => {
         if (user.role === 'client') {
-            fetch('http://localhost:5000/api/projects', {
+            fetch(process.env.REACT_APP_API_URL + '/api/projects', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())
@@ -50,10 +50,10 @@ const Chat = ({ receiverId, receiverName }) => {
         }
     }, [user, token]);
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         if (user.role === 'freelancer') {
-            fetch('http://localhost:5000/api/projects', {
+            fetch(process.env.REACT_APP_API_URL + '/api/projects', {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())
@@ -67,21 +67,21 @@ const Chat = ({ receiverId, receiverName }) => {
 
     const fetchMessages = async () => {
         setLoading(true);
-        const res = await fetch(`http://localhost:5000/api/messages/${receiverId}`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/messages/${receiverId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
         setMessages(data);
         setLoading(false);
 
-        await fetch(`http://localhost:5000/api/messages/read/${receiverId}`, {
+        await fetch(process.env.REACT_APP_API_URL + `/api/messages/read/${receiverId}`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${token}` }
         });
     };
 
     const fetchCurrentOffer = async () => {
-        const res = await fetch('http://localhost:5000/api/projects', {
+        const res = await fetch(process.env.REACT_APP_API_URL + '/api/projects', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -89,16 +89,24 @@ const Chat = ({ receiverId, receiverName }) => {
         setCurrentOffer(offerProject ? { ...offerProject.contract, projectTitle: offerProject.title, projectId: offerProject._id } : null);
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        fetchMessages();
-        fetchCurrentOffer();
+        if (user && user.id) {
+            fetchCurrentOffer();
+            fetchMessages();
+        }
+    }, [user]);
 
-    }, [receiverId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        fetchCurrentOffer();
+        fetchMessages();
+    }, []);
 
     const sendMessage = async (e) => {
         e.preventDefault();
         if (!input.trim()) return;
-        const res = await fetch('http://localhost:5000/api/messages', {
+        const res = await fetch(process.env.REACT_APP_API_URL + '/api/messages', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -112,7 +120,7 @@ const Chat = ({ receiverId, receiverName }) => {
     };
 
     const sendMessageWithContent = async (content) => {
-        const res = await fetch('http://localhost:5000/api/messages', {
+        const res = await fetch(process.env.REACT_APP_API_URL + '/api/messages', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -127,7 +135,7 @@ const Chat = ({ receiverId, receiverName }) => {
     const sendOffer = async (e) => {
         e.preventDefault();
         if (!offer.projectId || !offer.price || !offer.deadline) return;
-        const res = await fetch(`http://localhost:5000/api/projects/${offer.projectId}/offer`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${offer.projectId}/offer`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -146,7 +154,7 @@ const Chat = ({ receiverId, receiverName }) => {
 
     const handleEditOffer = async (e) => {
         e.preventDefault();
-        const res = await fetch(`http://localhost:5000/api/projects/${currentOffer.projectId}/offer`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -165,7 +173,7 @@ const Chat = ({ receiverId, receiverName }) => {
     };
 
     const handleCancelOffer = async () => {
-        const res = await fetch(`http://localhost:5000/api/projects/${currentOffer.projectId}/offer/cancel`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer/cancel`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -179,7 +187,7 @@ const Chat = ({ receiverId, receiverName }) => {
     };
 
     const handleAcceptOffer = async () => {
-        const res = await fetch(`http://localhost:5000/api/projects/${currentOffer.projectId}/offer/respond`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer/respond`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ action: 'accept' })
@@ -195,7 +203,7 @@ const Chat = ({ receiverId, receiverName }) => {
     };
 
     const handleRejectOffer = async () => {
-        const res = await fetch(`http://localhost:5000/api/projects/${currentOffer.projectId}/offer/respond`, {
+        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer/respond`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ action: 'reject' })

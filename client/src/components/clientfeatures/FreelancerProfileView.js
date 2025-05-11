@@ -52,7 +52,7 @@ const FreelancerProfileView = ({ freelancerId, onBack, onChat }) => {
                 <div className="flex flex-col items-center mb-8 w-full">
                     {profile.image && (
                         <img
-                            src={profile.image.startsWith('http') ? profile.image : `http://localhost:5000${profile.image}`}
+                            src={profile.image.startsWith('http') ? profile.image : process.env.REACT_APP_API_URL + profile.image}
                             alt="Profile"
                             className="h-32 w-32 rounded-full object-cover border-4 border-blue-300 shadow mb-3"
                         />

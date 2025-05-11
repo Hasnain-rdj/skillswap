@@ -16,7 +16,7 @@ const FreelancerChats = () => {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch('http://localhost:5000/api/messages/threads', {
+                const res = await fetch(process.env.REACT_APP_API_URL + '/api/messages/threads', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 let data = await res.json();
@@ -52,7 +52,7 @@ const FreelancerChats = () => {
                                     onClick={() => setSelectedClient(client)}
                                 >
                                     {client.image ? (
-                                        <img src={client.image.startsWith('http') ? client.image : `http://localhost:5000${client.image}`} alt={client.name} className="h-10 w-10 rounded-full object-cover border-2 border-blue-200" />
+                                        <img src={client.image.startsWith('http') ? client.image : process.env.REACT_APP_API_URL + client.image} alt={client.name} className="h-10 w-10 rounded-full object-cover border-2 border-blue-200" />
                                     ) : (
                                         <UserCircleIcon className="h-10 w-10 text-blue-400" />
                                     )}

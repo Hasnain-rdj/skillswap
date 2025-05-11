@@ -10,7 +10,7 @@ import {
     ClockIcon
 } from '@heroicons/react/24/outline';
 
-const API = 'http://localhost:5000/api/admin/notifications';
+const API = process.env.REACT_APP_API_URL + '/api/admin/notifications';
 
 const AdminNotifications = () => {
     const [templates, setTemplates] = useState([]);
@@ -36,7 +36,7 @@ const AdminNotifications = () => {
         setScheduled(await res.json());
     };
     const fetchUsers = async () => {
-        const res = await fetch('http://localhost:5000/api/auth/freelancers', { headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch(process.env.REACT_APP_API_URL + '/api/auth/freelancers', { headers: { Authorization: `Bearer ${token}` } });
         setUsers(await res.json());
     };
     const fetchPreferences = async (userId) => {
@@ -44,11 +44,11 @@ const AdminNotifications = () => {
         setPreferences(await res.json());
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchTemplates();
         fetchScheduled();
         fetchUsers();
-
     }, [token]);
 
 

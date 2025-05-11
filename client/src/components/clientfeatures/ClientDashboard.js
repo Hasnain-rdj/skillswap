@@ -12,7 +12,7 @@ const ClientDashboard = () => {
                 <div className="flex items-center mb-8">
                     {user?.image && (
                         <img
-                            src={user.image.startsWith('http') ? user.image : `http://localhost:5000${user.image}`}
+                            src={user.image.startsWith('http') ? user.image : process.env.REACT_APP_API_URL + user.image}
                             alt="Profile"
                             className="h-16 w-16 rounded-full border-4 border-blue-200 mr-4 object-cover"
                         />

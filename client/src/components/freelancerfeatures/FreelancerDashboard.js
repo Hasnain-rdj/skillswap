@@ -71,7 +71,7 @@ const FreelancerDashboard = () => {
                         <div className="flex items-center mb-10 bg-white rounded-2xl shadow-xl p-8 border border-blue-100">
                             {profile?.image && (
                                 <img
-                                    src={profile.image.startsWith('http') ? profile.image : `http://localhost:5000${profile.image}`}
+                                    src={profile.image.startsWith('http') ? profile.image : process.env.REACT_APP_API_URL + profile.image}
                                     alt="Profile"
                                     className="h-20 w-20 rounded-full border-4 border-blue-200 mr-6 object-cover shadow-lg"
                                 />

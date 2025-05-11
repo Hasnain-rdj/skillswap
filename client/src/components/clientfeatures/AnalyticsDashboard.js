@@ -29,13 +29,14 @@ const AnalyticsDashboard = () => {
     const [end, setEnd] = useState('');
     const [loading, setLoading] = useState(false);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         fetchAnalytics();
-    }, [start, end]);
+    }, []);
 
     const fetchAnalytics = async () => {
         setLoading(true);
-        let url = 'http://localhost:5000/api/analytics/client';
+        let url = process.env.REACT_APP_API_URL + '/api/analytics/client';
         const params = [];
         if (start) params.push(`start=${start}`);
         if (end) params.push(`end=${end}`);
@@ -47,11 +48,11 @@ const AnalyticsDashboard = () => {
     };
 
     const exportCSV = () => {
-        window.open('http://localhost:5000/api/analytics/client/export/csv', '_blank');
+        window.open(process.env.REACT_APP_API_URL + '/api/analytics/client/export/csv', '_blank');
     };
 
     const exportPDF = () => {
-        window.open('http://localhost:5000/api/analytics/client/export/pdf', '_blank');
+        window.open(process.env.REACT_APP_API_URL + '/api/analytics/client/export/pdf', '_blank');
     };
 
     const chartData = {

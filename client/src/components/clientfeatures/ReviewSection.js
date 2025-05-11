@@ -11,13 +11,14 @@ const ReviewSection = () => {
 
     useEffect(() => {
         const fetchProjects = async () => {
-            const res = await fetch('http://localhost:5000/api/projects/completed/unreviewed', {
+            const res = await fetch(process.env.REACT_APP_API_URL + '/api/projects/completed/unreviewed', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
             setProjects(data);
         };
         fetchProjects();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token, user]);
 
     const handleChange = (projectId, field, value) => {
@@ -30,7 +31,7 @@ const ReviewSection = () => {
         setSuccess('');
         const { rating = 5, comment = '' } = form[project._id] || {};
         if (!rating) return setError('Rating required');
-        const res = await fetch('http://localhost:5000/api/reviews', {
+        const res = await fetch(process.env.REACT_APP_API_URL + '/api/reviews', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
