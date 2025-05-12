@@ -8,7 +8,8 @@ import {
     ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
-const socket = io(process.env.REACT_APP_API_URL);
+const API_URL = process.env.REACT_APP_API_URL;
+const socket = io(API_URL);
 
 const Chat = ({ receiverId, receiverName }) => {
     const { token, user } = getAuth();
@@ -23,60 +24,17 @@ const Chat = ({ receiverId, receiverName }) => {
     const [currentOffer, setCurrentOffer] = useState(null);
     const [editOfferForm, setEditOfferForm] = useState(false);
     const [editOffer, setEditOffer] = useState({ price: '', deadline: '' });
-    const [errorMsg, setErrorMsg] = useState('');
-
-    const fetchMessages = useCallback(async () => {
-        if (!loading && messages.length === 0) setLoading(true);
-        const url = process.env.REACT_APP_API_URL + `/api/messages/${receiverId}`;
-        try {
-            const res = await fetch(url, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!res.ok) throw new Error('Failed to fetch messages: ' + res.status);
-            const data = await res.json();
-            setMessages(data);
-            setLoading(false);
-        } catch (err) {
-            setErrorMsg('Could not load messages. ' + (err.message || 'Network error.'));
-            setLoading(false);
-        }
-
-        try {
-            await fetch(process.env.REACT_APP_API_URL + `/api/messages/read/${receiverId}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-        } catch (err) {
-            // Optionally handle error for marking as read
-        }
-    }, [receiverId, token, loading, messages.length]);
-
-    const fetchCurrentOffer = useCallback(async () => {
-        const res = await fetch(process.env.REACT_APP_API_URL + '/api/projects', {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        const offerProject = data.find(p => p.contract && p.contract.freelancerId === receiverId && p.clientId && (p.clientId._id === user.id || p.clientId === user.id));
-        setCurrentOffer(offerProject ? { ...offerProject.contract, projectTitle: offerProject.title, projectId: offerProject._id } : null);
-    }, [receiverId, token, user.id]);
 
     useEffect(() => {
-        const handleNewMessage = (msg) => {
-            if ((msg.sender === user.id && msg.receiver === receiverId) ||
-                (msg.sender === receiverId && msg.receiver === user.id)) {
-                setMessages((prev) => {
-                    // Prevent duplicate messages
-                    if (prev.some(m => m._id === msg._id)) return prev;
-                    return [...prev, msg];
-                });
+        socket.on('newMessage', (msg) => {
+            if ((msg.sender === user.id && msg.receiver === receiverId) || (msg.sender === receiverId && msg.receiver === user.id)) {
+                setMessages((prev) => [...prev, msg]);
             }
-        };
-
-        socket.on('newMessage', handleNewMessage);
-
+        });
         return () => {
-            socket.off('newMessage', handleNewMessage);
+            socket.off('newMessage');
         };
+
     }, [receiverId, user.id]);
 
     useEffect(() => {
@@ -85,7 +43,7 @@ const Chat = ({ receiverId, receiverName }) => {
 
     useEffect(() => {
         if (user.role === 'client') {
-            fetch(process.env.REACT_APP_API_URL + '/api/projects', {
+            fetch(`${API_URL}/api/projects`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())
@@ -93,9 +51,10 @@ const Chat = ({ receiverId, receiverName }) => {
         }
     }, [user, token]);
 
+
     useEffect(() => {
         if (user.role === 'freelancer') {
-            fetch(process.env.REACT_APP_API_URL + '/api/projects', {
+            fetch(`${API_URL}/api/projects`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             })
                 .then(res => res.json())
@@ -106,113 +65,89 @@ const Chat = ({ receiverId, receiverName }) => {
                 });
         }
     }, [user, token, receiverId]);
+
+    const fetchMessages = useCallback(async () => {
+        setLoading(true);
+        const res = await fetch(`${API_URL}/api/messages/${receiverId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setMessages(data);
+        setLoading(false);
+
+        await fetch(`${API_URL}/api/messages/read/${receiverId}`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+    }, [receiverId, token]);
+
+    const fetchCurrentOffer = useCallback(async () => {
+        const res = await fetch(`${API_URL}/api/projects`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const offerProject = data.find(p => p.contract && p.contract.freelancerId === receiverId && p.clientId && (p.clientId._id === user.id || p.clientId === user.id));
+        setCurrentOffer(offerProject ? { ...offerProject.contract, projectTitle: offerProject.title, projectId: offerProject._id } : null);
+    }, [receiverId, token, user.id]);
+
     useEffect(() => {
-        if (user && user.id && receiverId) {
-            fetchMessages();
-            fetchCurrentOffer();
-        }
-    }, [receiverId, fetchMessages, fetchCurrentOffer, user]);
+        fetchMessages();
+        fetchCurrentOffer();
+
+    }, [receiverId, fetchMessages, fetchCurrentOffer]);
 
     const sendMessage = async (e) => {
         e.preventDefault();
         if (!input.trim()) return;
-
-
-        const tempMessage = {
-            _id: 'temp-' + Date.now(),
-            sender: user.id,
-            receiver: receiverId,
-            content: input,
-            createdAt: new Date().toISOString(),
-            read: false
-        };
-        setMessages(prev => [...prev, tempMessage]);
+        const res = await fetch(`${API_URL}/api/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ receiver: receiverId, content: input })
+        });
+        const data = await res.json();
+        setMessages((prev) => [...prev, data]);
         setInput('');
-
-        try {
-            const res = await fetch(process.env.REACT_APP_API_URL + '/api/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ receiver: receiverId, content: input })
-            });
-            const data = await res.json();
-            // Replace temp message with real one from server
-            setMessages(prev => prev.map(msg =>
-                msg._id === tempMessage._id ? data : msg
-            ));
-        } catch (err) {
-            setErrorMsg('Failed to send message.');
-        }
     };
 
     const sendMessageWithContent = async (content) => {
-        // Optimistic update
-        const tempMessage = {
-            _id: 'temp-' + Date.now(),
-            sender: user.id,
-            receiver: receiverId,
-            content: content,
-            createdAt: new Date().toISOString(),
-            read: false
-        };
-        setMessages(prev => [...prev, tempMessage]);
-
-        try {
-            const res = await fetch(process.env.REACT_APP_API_URL + '/api/messages', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ receiver: receiverId, content })
-            });
-            const data = await res.json();
-            // Replace temp message with real one from server
-            setMessages(prev => prev.map(msg =>
-                msg._id === tempMessage._id ? data : msg
-            ));
-        } catch (err) {
-            setErrorMsg('Failed to send system message.');
-        }
+        const res = await fetch(`${API_URL}/api/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ receiver: receiverId, content })
+        });
+        const data = await res.json();
+        setMessages((prev) => [...prev, data]);
     };
 
     const sendOffer = async (e) => {
         e.preventDefault();
         if (!offer.projectId || !offer.price || !offer.deadline) return;
-
-        setOfferStatus('Sending offer...');
-
-        try {
-            const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${offer.projectId}/offer`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ freelancerId: receiverId, price: offer.price, deadline: offer.deadline })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                setOfferStatus('Offer sent!');
-                setShowOfferForm(false);
-                // Wait a bit before fetching to avoid UI flicker
-                setTimeout(() => {
-                    fetchCurrentOffer();
-                }, 300);
-            } else {
-                setOfferStatus(data.message || 'Error sending offer');
-            }
-        } catch (err) {
-            setOfferStatus('Network error sending offer');
+        const res = await fetch(`${API_URL}/api/projects/${offer.projectId}/offer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ freelancerId: receiverId, price: offer.price, deadline: offer.deadline })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            setOfferStatus('Offer sent!');
+            setShowOfferForm(false);
+        } else {
+            setOfferStatus(data.message || 'Error sending offer');
         }
     };
 
     const handleEditOffer = async (e) => {
         e.preventDefault();
-        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer`, {
+        const res = await fetch(`${API_URL}/api/projects/${currentOffer.projectId}/offer`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -231,7 +166,7 @@ const Chat = ({ receiverId, receiverName }) => {
     };
 
     const handleCancelOffer = async () => {
-        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer/cancel`, {
+        const res = await fetch(`${API_URL}/api/projects/${currentOffer.projectId}/offer/cancel`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -245,7 +180,7 @@ const Chat = ({ receiverId, receiverName }) => {
     };
 
     const handleAcceptOffer = async () => {
-        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer/respond`, {
+        const res = await fetch(`${API_URL}/api/projects/${currentOffer.projectId}/offer/respond`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ action: 'accept' })
@@ -261,7 +196,7 @@ const Chat = ({ receiverId, receiverName }) => {
     };
 
     const handleRejectOffer = async () => {
-        const res = await fetch(process.env.REACT_APP_API_URL + `/api/projects/${currentOffer.projectId}/offer/respond`, {
+        const res = await fetch(`${API_URL}/api/projects/${currentOffer.projectId}/offer/respond`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ action: 'reject' })
@@ -282,9 +217,6 @@ const Chat = ({ receiverId, receiverName }) => {
                 <ChatBubbleLeftRightIcon className="h-5 w-5 mr-2" />
                 Chat with {receiverName}
             </h2>
-            {errorMsg && (
-                <div className="mb-2 text-center text-red-600 font-semibold">{errorMsg}</div>
-            )}
             {user.role === 'client' && (
                 <button
                     className="mb-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold"
