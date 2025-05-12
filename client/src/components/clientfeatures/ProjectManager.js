@@ -12,6 +12,8 @@ import NavigationBar from '../NavigationBar';
 import BidList from '../BidList';
 import { getAuth } from '../auth';
 
+const API = process.env.REACT_APP_API_URL + '/api/projects';
+
 const statusColors = {
     open: 'bg-green-100 text-green-700',
     'in progress': 'bg-yellow-100 text-yellow-700',
@@ -31,24 +33,25 @@ const ProjectManager = () => {
 
     const { token, user } = getAuth();
 
-    useEffect(() => {
+    const fetchProjects = async () => {
         setLoading(true);
         if (!user || !user.id) {
             setProjects([]);
             setLoading(false);
             return;
         }
-        const API = process.env.REACT_APP_API_URL + '/api/projects';
-        const fetchProjects = async () => {
-            const res = await fetch(API, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            setProjects(data.filter(p => p.clientId && p.clientId._id === user.id));
-            setLoading(false);
-        };
+        const res = await fetch(API, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setProjects(data.filter(p => p.clientId && p.clientId._id === user.id));
+        setLoading(false);
+    };
+
+    useEffect(() => {
         fetchProjects();
-    }, [user, token]);
+        // eslint-disable-next-line
+    }, []);
 
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -62,7 +65,6 @@ const ProjectManager = () => {
         }
         setLoading(true);
         const method = editing ? 'PUT' : 'POST';
-        const API = process.env.REACT_APP_API_URL + '/api/projects';
         const url = editing ? `${API}/${editing}` : API;
         const res = await fetch(url, {
             method,
@@ -78,12 +80,7 @@ const ProjectManager = () => {
             setSuccess(editing ? 'Project updated.' : 'Project created.');
             setForm({ title: '', description: '', requirements: '', deadline: '' });
             setEditing(null);
-            // Refetch projects
-            const res2 = await fetch(API, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data2 = await res2.json();
-            setProjects(data2.filter(p => p.clientId && p.clientId._id === user.id));
+            fetchProjects();
         }
         setLoading(false);
     };
@@ -101,19 +98,11 @@ const ProjectManager = () => {
     const handleDelete = async id => {
         if (!window.confirm('Delete this project?')) return;
         setLoading(true);
-        const API = process.env.REACT_APP_API_URL + '/api/projects';
         const res = await fetch(`${API}/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (res.ok) {
-            // Refetch projects
-            const res2 = await fetch(API, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data2 = await res2.json();
-            setProjects(data2.filter(p => p.clientId && p.clientId._id === user.id));
-        }
+        if (res.ok) fetchProjects();
         setLoading(false);
     };
 

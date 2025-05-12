@@ -55,6 +55,26 @@ const ProjectManager = () => {
                                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${p.contract.status === 'accepted' ? 'bg-green-200 text-green-800' : p.contract.status === 'pending' ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800'}`}>Contract: {p.contract.status}</span>
                                         )}
                                     </div>
+                                    {/* Mark as Completed button for in-progress and accepted projects */}
+                                    {p.status === 'in progress' && p.contract && p.contract.status === 'accepted' && (
+                                        <button
+                                            className="mt-2 bg-green-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition self-end"
+                                            onClick={async () => {
+                                                try {
+                                                    await axios.post(
+                                                        `${process.env.REACT_APP_API_URL}/api/projects/${p._id}/complete`,
+                                                        {},
+                                                        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+                                                    );
+                                                    setProjects(projects => projects.map(proj => proj._id === p._id ? { ...proj, status: 'completed' } : proj));
+                                                } catch (err) {
+                                                    alert('Failed to mark as completed.');
+                                                }
+                                            }}
+                                        >
+                                            Mark as Completed
+                                        </button>
+                                    )}
                                     <button className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition self-end" onClick={() => setSelectedProject(p)}>View Details</button>
                                 </li>
                             ))}
