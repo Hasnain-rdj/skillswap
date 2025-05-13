@@ -99,6 +99,57 @@ const NavigationBar = ({ showProfile = true }) => {
                         }
                     </button>
 
+                    {/* Mobile Navigation Menu */}
+                    {isMenuOpen && (
+                        <div className="md:hidden absolute top-16 right-0 w-full bg-white shadow-lg z-50 flex flex-col items-start p-6 space-y-4 border-t border-blue-100">
+                            {!authState.authenticated && (
+                                <>
+                                    <NavLink to="/login" icon={<ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" />}>
+                                        Login
+                                    </NavLink>
+                                    <NavLink to="/signup" icon={<UserIcon className="h-5 w-5 mr-1" />}>
+                                        Sign Up
+                                    </NavLink>
+                                </>
+                            )}
+                            {authState.authenticated && authState.user && authState.user.role === 'client' && (
+                                <>
+                                    <NavLink to="/client/dashboard" icon={<HomeIcon className="h-5 w-5 mr-1" />}>Dashboard</NavLink>
+                                    <NavLink to="/client/projects" icon={<BriefcaseIcon className="h-5 w-5 mr-1" />}>Projects</NavLink>
+                                    <NavLink to="/client/freelancers" icon={<UsersIcon className="h-5 w-5 mr-1" />}>Freelancers</NavLink>
+                                    <NavLink to="/client/analytics" icon={<ChartBarIcon className="h-5 w-5 mr-1" />}>Analytics</NavLink>
+                                    <button onClick={handleLogout} className="flex items-center text-blue-700 text-lg font-medium hover:text-red-500 transition-all duration-300 mt-2">
+                                        <ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" /> Logout
+                                    </button>
+                                </>
+                            )}
+                            {authState.authenticated && authState.user && authState.user.role === 'freelancer' && (
+                                <>
+                                    <NavLink to="/freelancer/dashboard" icon={<HomeIcon className="h-5 w-5 mr-1" />}>Dashboard</NavLink>
+                                    <NavLink to="/freelancer/profile" icon={<UserIcon className="h-5 w-5 mr-1" />}>Profile</NavLink>
+                                    <NavLink to="/freelancer/bids" icon={<BriefcaseIcon className="h-5 w-5 mr-1" />}>Bids</NavLink>
+                                    <NavLink to="/freelancer/projects" icon={<ChartBarIcon className="h-5 w-5 mr-1" />}>Projects</NavLink>
+                                    <NavLink to="/freelancer/chats" icon={<ChatBubbleLeftRightIcon className="h-5 w-5 mr-1" />}>Chat</NavLink>
+                                    <NavLink to="/freelancer/offers" icon={<StarIcon className="h-5 w-5 mr-1 text-yellow-500" />}>Offers</NavLink>
+                                    <button onClick={handleLogout} className="flex items-center text-blue-700 text-lg font-medium hover:text-red-500 transition-all duration-300 mt-2">
+                                        <ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" /> Logout
+                                    </button>
+                                </>
+                            )}
+                            {authState.authenticated && authState.user && authState.user.role === 'admin' && (
+                                <>
+                                    <NavLink to="/admin/dashboard" icon={<HomeIcon className="h-5 w-5 mr-1" />}>Admin Dashboard</NavLink>
+                                    <NavLink to="/admin/verification" icon={<CheckBadgeIcon className="h-5 w-5 mr-1" />}>Freelancer Verification</NavLink>
+                                    <NavLink to="/admin/analytics" icon={<ChartBarIcon className="h-5 w-5 mr-1" />}>Platform Analytics</NavLink>
+                                    <NavLink to="/admin/notifications" icon={<BellIcon className="h-5 w-5 mr-1" />}>Notification System</NavLink>
+                                    <button onClick={handleLogout} className="flex items-center text-blue-700 text-lg font-medium hover:text-red-500 transition-all duration-300 mt-2">
+                                        <ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" /> Logout
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    )}
+
                     {/* Desktop Navigation Links */}
                     <div className="hidden md:flex space-x-6 items-center">
                         {!authState.authenticated && (
